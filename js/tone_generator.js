@@ -24,14 +24,14 @@ Tone = (function(_super) {
 
   __extends(Tone, _super);
 
-  function Tone(bps, milliseconds) {
+  function Tone(frequency, milliseconds) {
     var data, denom, i, sample_rate, _i, _ref;
-    this.bps = bps != null ? bps : 440;
+    this.frequency = frequency != null ? frequency : 440;
     if (milliseconds == null) {
       milliseconds = 200;
     }
     sample_rate = 44100;
-    denom = sample_rate / this.bps;
+    denom = sample_rate / this.frequency;
     data = [];
     for (i = _i = 0, _ref = Math.floor(sample_rate * milliseconds / 1000); 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
       data[i] = 128 + Math.round(127 * Math.sin(i / denom));

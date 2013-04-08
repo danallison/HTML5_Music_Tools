@@ -75,6 +75,13 @@ DrumMachine = (function(_super) {
     return this.beat_duration = 60000 / new_bpm;
   };
 
+  DrumMachine.prototype.change_sound = function(index, sound) {
+    if (typeof sound === "string") {
+      sound = new Sound(sound);
+    }
+    return this.sounds[index] = sound;
+  };
+
   DrumMachine.prototype.next_beat = function() {
     var channel, difference, next, now, _i, _ref,
       _this = this;
@@ -118,32 +125,28 @@ DrumMachineInterface = (function(_super) {
   __extends(DrumMachineInterface, _super);
 
   function DrumMachineInterface(sounds, beats, bpm) {
+    this.resize = __bind(this.resize, this);
+
     this.toggle_play = __bind(this.toggle_play, this);
 
     this.toggle_hit = __bind(this.toggle_hit, this);
 
-    var beat_number, channel_number, channel_view, click_func, _i, _j, _ref, _ref1,
+    var cell_height, matrix_height, matrix_width, screen_height, screen_width,
       _this = this;
     DrumMachineInterface.__super__.constructor.call(this, sounds, beats, bpm);
-    this.view = d3.select("body").append("div").attr("id", "drum_machine_view");
-    d3.select(window).on("keypress", function(e) {
+    cell_height = 45;
+    screen_height = window.innerHeight;
+    screen_width = window.innerWidth;
+    matrix_height = cell_height * this.channels;
+    matrix_width = cell_height * this.beats;
+    this.view = d3.select("body").append("div").attr("id", "drum_machine_view").style("top", "" + (screen_height / 2 - matrix_height / 2) + "px").style("left", "" + (screen_width / 2 - matrix_width / 2) + "px");
+    d3.select(window).on("keypress", function() {
       if (d3.event.which === 32) {
         return _this.toggle_play();
       }
-    });
-    this.matrix_view = [];
-    for (channel_number = _i = 0, _ref = this.channels; 0 <= _ref ? _i < _ref : _i > _ref; channel_number = 0 <= _ref ? ++_i : --_i) {
-      channel_view = [];
-      for (beat_number = _j = 0, _ref1 = this.beats; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; beat_number = 0 <= _ref1 ? ++_j : --_j) {
-        click_func = (function(c, b) {
-          return function() {
-            return _this.toggle_hit(c, b);
-          };
-        })(channel_number, beat_number);
-        channel_view.push(this.view.append("div").attr("class", "matrix_view_cell").style("left", "" + (beat_number * 45) + "px").style("top", "" + (channel_number * 45) + "px").style("opacity", "0.3").on("click", click_func));
-      }
-      this.matrix_view.push(channel_view);
-    }
+    }).on("resize", this.resize);
+    this.play_button = this.view.append("div").attr("id", "play_button").attr("class", "stopped").style("position", "absolute").style("top", "-25px").style("left", "0px").on("click", this.toggle_play);
+    this.render_matrix_view();
   }
 
   DrumMachineInterface.prototype.toggle_hit = function(channel_number, beat_number) {
@@ -161,10 +164,16 @@ DrumMachineInterface = (function(_super) {
 
   DrumMachineInterface.prototype.toggle_play = function() {
     if (this.playing) {
-      return this.stop();
+      this.stop();
+      return this.play_button.attr("class", "stopped");
     } else {
-      return this.play();
+      this.play();
+      return this.play_button.attr("class", "playing");
     }
+  };
+
+  DrumMachineInterface.prototype.change_sound = function(index, url) {
+    return DrumMachineInterface.__super__.change_sound.call(this, index, url);
   };
 
   DrumMachineInterface.prototype.next_beat = function() {
@@ -178,7 +187,7 @@ DrumMachineInterface = (function(_super) {
     return DrumMachineInterface.__super__.next_beat.apply(this, arguments);
   };
 
-  DrumMachineInterface.prototype.render = function(matrix) {
+  DrumMachineInterface.prototype.render_matrix_view = function(matrix) {
     var beat_number, cell, channel_number, channel_view, click_func, color, hit, _i, _j, _k, _l, _len, _len1, _ref, _ref1, _ref2, _results,
       _this = this;
     if (matrix) {
@@ -186,12 +195,14 @@ DrumMachineInterface = (function(_super) {
     }
     this.channels = this.matrix.length;
     this.beats = this.matrix[0].length;
-    _ref = this.matrix_view;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      channel_view = _ref[_i];
-      for (_j = 0, _len1 = channel_view.length; _j < _len1; _j++) {
-        cell = channel_view[_j];
-        cell.remove();
+    if (this.matrix_view) {
+      _ref = this.matrix_view;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        channel_view = _ref[_i];
+        for (_j = 0, _len1 = channel_view.length; _j < _len1; _j++) {
+          cell = channel_view[_j];
+          cell.remove();
+        }
       }
     }
     this.matrix_view = [];
@@ -211,6 +222,16 @@ DrumMachineInterface = (function(_super) {
       _results.push(this.matrix_view.push(channel_view));
     }
     return _results;
+  };
+
+  DrumMachineInterface.prototype.resize = function() {
+    var cell_height, matrix_height, matrix_width, screen_height, screen_width;
+    cell_height = 45;
+    screen_height = window.innerHeight;
+    screen_width = window.innerWidth;
+    matrix_height = cell_height * this.channels;
+    matrix_width = cell_height * this.beats;
+    return this.view.style("top", "" + (screen_height / 2 - matrix_height / 2) + "px").style("left", "" + (screen_width / 2 - matrix_width / 2) + "px");
   };
 
   DrumMachineInterface.prototype.clear_hits = function() {

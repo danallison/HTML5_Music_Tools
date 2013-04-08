@@ -10,9 +10,9 @@ class Wave
     @audio.play()
 
 class Tone extends Wave
-  constructor: (@bps = 440, milliseconds = 200) ->
+  constructor: (@frequency = 440, milliseconds = 200) ->
     sample_rate = 44100
-    denom = sample_rate / @bps
+    denom = sample_rate / @frequency # TODO this is currently incorrect
     data = []
     for i in [0...Math.floor(sample_rate * milliseconds / 1000)]
       data[i] = 128 + Math.round(127 * Math.sin(i / denom))
