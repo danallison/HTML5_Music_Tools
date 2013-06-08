@@ -71,16 +71,8 @@ class DrumMachineInterface extends DrumMachine
   constructor: (sounds, beats, bpm) ->
     super sounds, beats, bpm
     
-    cell_height = 45
-    screen_height = window.innerHeight
-    screen_width = window.innerWidth
-    matrix_height = cell_height * @channels
-    matrix_width = cell_height * @beats
-    
     @view = d3.select("body").append("div")
           .attr("id", "drum_machine_view")
-          .style("top", "#{screen_height / 2 - matrix_height / 2}px")
-          .style("left", "#{screen_width / 2 - matrix_width / 2}px")
           
     d3.select(window)
       .on("keypress", =>
@@ -96,7 +88,8 @@ class DrumMachineInterface extends DrumMachine
       .style("top", "-25px")
       .style("left", "0px")
       .on("click", @toggle_play)
-    
+      
+    @resize()
     @render_matrix_view()
       
   toggle_hit: (channel_number, beat_number) =>
@@ -104,10 +97,10 @@ class DrumMachineInterface extends DrumMachine
     matrix_view_cell = @matrix_view[channel_number][beat_number]
     if matrix_cell
       @remove_hit channel_number, beat_number
-      matrix_view_cell.style("background-color", "#EEE")
+      matrix_view_cell.attr("class", "matrix_view_cell off")
     else
       @add_hit channel_number, beat_number
-      matrix_view_cell.style("background-color", "#333")
+      matrix_view_cell.attr("class", "matrix_view_cell on")
       
   toggle_play: =>
     if @playing
@@ -125,7 +118,8 @@ class DrumMachineInterface extends DrumMachine
       channel_view[@current_beat].style("opacity", "1")
       channel_view[((@current_beat - 1) + @beats) % @beats]
         .style("opacity", "0.5")
-        .transition().duration(@beat_duration*2).style("opacity", "0.3")
+        #.transition().duration(@beat_duration*2)
+        .style("opacity", "0.3")
     super
   
   render_matrix_view: (matrix) ->
@@ -148,12 +142,12 @@ class DrumMachineInterface extends DrumMachine
             @toggle_hit c, b
           )(channel_number, beat_number)
         hit = @matrix[channel_number][beat_number]
-        color = if hit then "#333" else "#EEE"
+        #color = if hit then "#333" else "#EEE"
         channel_view.push @view.append("div")
-            .attr("class", "matrix_view_cell")
+            .attr("class", "matrix_view_cell off")
             .style("left", "#{beat_number * 45}px")
             .style("top", "#{channel_number * 45}px")
-            .style("background-color", color)
+            #.style("background-color", color)
             .style("opacity", "0.3")
             .on("click", click_func)
 

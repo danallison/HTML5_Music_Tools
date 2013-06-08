@@ -131,21 +131,16 @@ DrumMachineInterface = (function(_super) {
 
     this.toggle_hit = __bind(this.toggle_hit, this);
 
-    var cell_height, matrix_height, matrix_width, screen_height, screen_width,
-      _this = this;
+    var _this = this;
     DrumMachineInterface.__super__.constructor.call(this, sounds, beats, bpm);
-    cell_height = 45;
-    screen_height = window.innerHeight;
-    screen_width = window.innerWidth;
-    matrix_height = cell_height * this.channels;
-    matrix_width = cell_height * this.beats;
-    this.view = d3.select("body").append("div").attr("id", "drum_machine_view").style("top", "" + (screen_height / 2 - matrix_height / 2) + "px").style("left", "" + (screen_width / 2 - matrix_width / 2) + "px");
+    this.view = d3.select("body").append("div").attr("id", "drum_machine_view");
     d3.select(window).on("keypress", function() {
       if (d3.event.which === 32) {
         return _this.toggle_play();
       }
     }).on("resize", this.resize);
     this.play_button = this.view.append("div").attr("id", "play_button").attr("class", "stopped").style("position", "absolute").style("top", "-25px").style("left", "0px").on("click", this.toggle_play);
+    this.resize();
     this.render_matrix_view();
   }
 
@@ -155,10 +150,10 @@ DrumMachineInterface = (function(_super) {
     matrix_view_cell = this.matrix_view[channel_number][beat_number];
     if (matrix_cell) {
       this.remove_hit(channel_number, beat_number);
-      return matrix_view_cell.style("background-color", "#EEE");
+      return matrix_view_cell.attr("class", "matrix_view_cell off");
     } else {
       this.add_hit(channel_number, beat_number);
-      return matrix_view_cell.style("background-color", "#333");
+      return matrix_view_cell.attr("class", "matrix_view_cell on");
     }
   };
 
@@ -182,13 +177,13 @@ DrumMachineInterface = (function(_super) {
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       channel_view = _ref[_i];
       channel_view[this.current_beat].style("opacity", "1");
-      channel_view[((this.current_beat - 1) + this.beats) % this.beats].style("opacity", "0.5").transition().duration(this.beat_duration * 2).style("opacity", "0.3");
+      channel_view[((this.current_beat - 1) + this.beats) % this.beats].style("opacity", "0.5").style("opacity", "0.3");
     }
     return DrumMachineInterface.__super__.next_beat.apply(this, arguments);
   };
 
   DrumMachineInterface.prototype.render_matrix_view = function(matrix) {
-    var beat_number, cell, channel_number, channel_view, click_func, color, hit, _i, _j, _k, _l, _len, _len1, _ref, _ref1, _ref2, _results,
+    var beat_number, cell, channel_number, channel_view, click_func, hit, _i, _j, _k, _l, _len, _len1, _ref, _ref1, _ref2, _results,
       _this = this;
     if (matrix) {
       this.matrix = matrix;
@@ -216,8 +211,7 @@ DrumMachineInterface = (function(_super) {
           };
         })(channel_number, beat_number);
         hit = this.matrix[channel_number][beat_number];
-        color = hit ? "#333" : "#EEE";
-        channel_view.push(this.view.append("div").attr("class", "matrix_view_cell").style("left", "" + (beat_number * 45) + "px").style("top", "" + (channel_number * 45) + "px").style("background-color", color).style("opacity", "0.3").on("click", click_func));
+        channel_view.push(this.view.append("div").attr("class", "matrix_view_cell off").style("left", "" + (beat_number * 45) + "px").style("top", "" + (channel_number * 45) + "px").style("opacity", "0.3").on("click", click_func));
       }
       _results.push(this.matrix_view.push(channel_view));
     }

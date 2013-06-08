@@ -1,3 +1,6 @@
+body {
+  background-color: #666;
+}
 #drum_machine_view {
   position: absolute;
 }
@@ -7,6 +10,13 @@
   border: solid 1px #666;
   width: 40px;
   height: 40px;
+}
+.matrix_view_cell.on {
+  border-radius: 20px;
+  background-color: #FFF;
+}
+.matrix_view_cell.off {
+  background-color: #333;
 }
 .stopped {
   width: 0; 

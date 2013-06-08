@@ -14,11 +14,13 @@
 </head>
 <body>
   <h1>HTML5 Drum Machine</h1>
+  <div>click on the squares to set or remove beats, and click the play/pause button (or hit the spacebar) to hear your composition.</div>
   <script src="js/vendor/d3.v3.min.js"></script>
   <script src="js/vendor/riffwave.js"></script>
   <script src="js/drum_machine.js"></script>
   <script src="js/tone_generator.js"></script>
   <script src="js/sound.js"></script>
+  <script src="js/audio_context.js"></script>
   <script>
     DrumMachine.default_sounds = [new Sound("audio/8bit_explosion1.wav"), new Sound("audio/8bit_khhw1.wav"), new Sound("audio/8bit_kst1.wav"), new Sound("audio/8bit_kst2.wav"), new Sound("audio/8bit_kst3.wav")];
     var theMachine = new DrumMachineInterface();
